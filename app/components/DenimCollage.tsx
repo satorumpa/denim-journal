@@ -16,10 +16,8 @@ interface DenimCollageProps {
 }
 
 export default function DenimCollage({ entries }: DenimCollageProps) {
-  // Sortera efter dagar så att stygnen följer tidslinjen kronologiskt
   const sortedEntries = [...entries].sort((a, b) => a.daysWorn - b.daysWorn);
 
-  // Generera SVG-path för de orangea stygnen
   const generateStitchPath = () => {
     if (sortedEntries.length < 2) return "";
     
@@ -33,12 +31,17 @@ export default function DenimCollage({ entries }: DenimCollageProps) {
 
   return (
     <div 
-      className="relative w-full min-h-screen bg-repeat p-8 overflow-hidden select-none"
+      className="relative w-full min-h-screen p-8 overflow-hidden select-none"
       style={{ 
-        // Vi använder en stabil, extern URL till en sömlös denim-textur
-        backgroundImage: "url('https://images.unsplash.com/photo-1582719212005-9e65842c16eb?q=80&w=1000&auto=format&fit=crop')", 
-        backgroundAttachment: "fixed",
-        backgroundSize: "400px" // Gör texturen lagom inzoomad och skarp
+        // Rent CSS-mönster som skapar en mörk, korsvävd denim/canvas-textur helt utan bildfiler!
+        backgroundColor: "#111827",
+        backgroundImage: `
+          linear-gradient(45deg, #1e293b 25%, transparent 25%, transparent 75%, #1e293b 75%, #1e293b), 
+          linear-gradient(45deg, #1e293b 25%, transparent 25%, transparent 75%, #1e293b 75%, #1e293b)
+        `,
+        backgroundSize: "6px 6px",
+        backgroundPosition: "0 0, 3px 3px",
+        backgroundAttachment: "fixed"
       }}
     >
       
@@ -48,9 +51,9 @@ export default function DenimCollage({ entries }: DenimCollageProps) {
           <path
             d={generateStitchPath()}
             fill="none"
-            stroke="#f59e0b" // Klassisk orange/tobaksfärgad söm
+            stroke="#f59e0b" 
             strokeWidth="4"
-            strokeDasharray="12, 8" // Skapar själva "stygn"-effekten
+            strokeDasharray="12, 8" 
             strokeLinecap="round"
             className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
           />
