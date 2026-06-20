@@ -30,24 +30,24 @@ export default function DenimCollage({ entries }: DenimCollageProps) {
   };
 
   return (
-    <div 
-      className="relative w-full min-h-screen p-8 overflow-hidden select-none"
-      style={{ 
-        // Rent CSS-mönster som skapar en mörk, korsvävd denim/canvas-textur helt utan bildfiler!
-        backgroundColor: "#111827",
-        backgroundImage: `
-          linear-gradient(45deg, #1e293b 25%, transparent 25%, transparent 75%, #1e293b 75%, #1e293b), 
-          linear-gradient(45deg, #1e293b 25%, transparent 25%, transparent 75%, #1e293b 75%, #1e293b)
-        `,
-        backgroundSize: "6px 6px",
-        backgroundPosition: "0 0, 3px 3px",
-        backgroundAttachment: "fixed"
-      }}
-    >
+    <div className="relative w-full min-h-screen overflow-hidden bg-slate-950">
+      
+      {/* Det faktiska jeans-lagret (Garanterat äkta denim-textur) */}
+      <div 
+        className="absolute inset-0 bg-repeat z-0"
+        style={{ 
+          backgroundImage: "url('https://images.unsplash.com/photo-1541099649105-f69ad21f3246?q=80&w=2000&auto=format&fit=crop')", 
+          backgroundAttachment: "fixed",
+          backgroundSize: "500px"
+        }}
+      />
+
+      {/* En mjuk, mörk toning över jeansen för maximal kontrast mot den vita texten */}
+      <div className="absolute inset-0 bg-slate-950/40 z-0 pointer-events-none" />
       
       {/* Skikt 1: De orangea jeans-stygnen */}
       {sortedEntries.length > 1 && (
-        <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
+        <svg className="absolute inset-0 w-full h-full pointer-events-none z-10">
           <path
             d={generateStitchPath()}
             fill="none"
@@ -61,7 +61,7 @@ export default function DenimCollage({ entries }: DenimCollageProps) {
       )}
 
       {/* Skikt 2: Polaroid-bilderna */}
-      <div className="relative w-full h-full z-10">
+      <div className="relative w-full h-full z-20 min-h-screen">
         {sortedEntries.map((entry, index) => {
           const rotations = ['-rotate-2', 'rotate-3', '-rotate-1', 'rotate-2', '-rotate-3'];
           const rotation = rotations[index % rotations.length];
@@ -69,7 +69,7 @@ export default function DenimCollage({ entries }: DenimCollageProps) {
           return (
             <div
               key={entry.id}
-              className={`absolute transform ${rotation} transition-transform hover:scale-105 hover:z-20 duration-300`}
+              className={`absolute transform ${rotation} transition-transform hover:scale-105 hover:z-40 duration-300`}
               style={{
                 left: `${entry.x}%`,
                 top: `${entry.y}%`,
