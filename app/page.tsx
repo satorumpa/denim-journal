@@ -30,7 +30,7 @@ export default function Home() {
     const { data, error } = await supabase
       .from('jeans_entries')
       .select('*')
-      .order('daysWorn', { ascending: true });
+      .order('days_worn', { ascending: true });
 
     if (error) {
       console.error("Fel vid hämtning:", error);
