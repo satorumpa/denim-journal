@@ -34,7 +34,12 @@ export default function DenimCollage({ entries }: DenimCollageProps) {
   return (
     <div 
       className="relative w-full min-h-screen bg-repeat p-8 overflow-hidden select-none"
-      style={{ backgroundImage: "url('/denim-bg.jpg')", backgroundAttachment: "fixed" }}
+      style={{ 
+        // Vi använder en stabil, extern URL till en sömlös denim-textur
+        backgroundImage: "url('https://images.unsplash.com/photo-1582719212005-9e65842c16eb?q=80&w=1000&auto=format&fit=crop')", 
+        backgroundAttachment: "fixed",
+        backgroundSize: "400px" // Gör texturen lagom inzoomad och skarp
+      }}
     >
       
       {/* Skikt 1: De orangea jeans-stygnen */}
@@ -47,7 +52,7 @@ export default function DenimCollage({ entries }: DenimCollageProps) {
             strokeWidth="4"
             strokeDasharray="12, 8" // Skapar själva "stygn"-effekten
             strokeLinecap="round"
-            className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]"
+            className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
           />
         </svg>
       )}
@@ -55,7 +60,6 @@ export default function DenimCollage({ entries }: DenimCollageProps) {
       {/* Skikt 2: Polaroid-bilderna */}
       <div className="relative w-full h-full z-10">
         {sortedEntries.map((entry, index) => {
-          // Ge varje bild en subtil, unik rotation baserat på dess index för analog känsla
           const rotations = ['-rotate-2', 'rotate-3', '-rotate-1', 'rotate-2', '-rotate-3'];
           const rotation = rotations[index % rotations.length];
 
@@ -66,10 +70,10 @@ export default function DenimCollage({ entries }: DenimCollageProps) {
               style={{
                 left: `${entry.x}%`,
                 top: `${entry.y}%`,
-                transform: `translate(-50%, -50%)`, // Centrera på koordinaten
+                transform: `translate(-50%, -50%)`,
               }}
             >
-              {/* Polaroid-ramen - Fast bredd så den inte drar iväg */}
+              {/* Polaroid-ramen */}
               <div className="bg-white p-3 pb-5 shadow-2xl border border-gray-200/50 rounded-sm w-44 sm:w-56 flex flex-col items-center">
                 
                 {/* Den kvadratiska bildbehållaren */}
@@ -82,7 +86,7 @@ export default function DenimCollage({ entries }: DenimCollageProps) {
                   />
                 </div>
                 
-                {/* Polaroid-text (Texten under bilden) */}
+                {/* Polaroid-text */}
                 <div className="mt-3 text-center font-mono text-gray-800 w-full">
                   <p className="font-bold text-xs sm:text-sm text-indigo-950">
                     Dag {entry.daysWorn}
