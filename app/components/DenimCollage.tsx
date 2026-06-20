@@ -7,7 +7,6 @@ interface JournalEntry {
   imageUrl: string;
   daysWorn: number;
   caption: string;
-  // Position i procent (0-100) för var på denim-bakgrunden bilden ska ligga
   x: number; 
   y: number;
 }
@@ -24,7 +23,6 @@ export default function DenimCollage({ entries }: DenimCollageProps) {
   const generateStitchPath = () => {
     if (sortedEntries.length < 2) return "";
     
-    // Vi mappar ut koordinaterna baserat på procent av containern
     return sortedEntries
       .map((entry, index) => {
         const prefix = index === 0 ? "M" : "L";
@@ -47,9 +45,9 @@ export default function DenimCollage({ entries }: DenimCollageProps) {
             fill="none"
             stroke="#f59e0b" // Klassisk orange/tobaksfärgad söm
             strokeWidth="4"
-            strokeDasharray="12, 8" // Det här skapar själva "stygn"-effekten
+            strokeDasharray="12, 8" // Skapar själva "stygn"-effekten
             strokeLinecap="round"
-            className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
+            className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]"
           />
         </svg>
       )}
@@ -68,27 +66,29 @@ export default function DenimCollage({ entries }: DenimCollageProps) {
               style={{
                 left: `${entry.x}%`,
                 top: `${entry.y}%`,
-                transform: `translate(-50%, -50%) ${entry.caption ? '' : ''}`, // Centrera på koordinaten
+                transform: `translate(-50%, -50%)`, // Centrera på koordinaten
               }}
             >
-              {/* Polaroid-ramen */}
-              <div className="bg-white p-3 pb-6 shadow-2xl border border-gray-200/50 rounded-sm w-48 sm:w-64">
-                <div className="relative aspect-square w-full bg-gray-100 overflow-hidden border border-gray-100">
+              {/* Polaroid-ramen - Fast bredd så den inte drar iväg */}
+              <div className="bg-white p-3 pb-5 shadow-2xl border border-gray-200/50 rounded-sm w-44 sm:w-56 flex flex-col items-center">
+                
+                {/* Den kvadratiska bildbehållaren */}
+                <div className="relative w-full aspect-square bg-gray-100 overflow-hidden border border-gray-200">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={entry.imageUrl}
                     alt={`Fade efter ${entry.daysWorn} dagar`}
-                    className="object-cover w-full h-full"
+                    className="block w-full h-full object-cover"
                   />
                 </div>
                 
                 {/* Polaroid-text (Texten under bilden) */}
-                <div className="mt-4 text-center font-mono text-gray-800">
-                  <p className="font-bold text-sm sm:text-base text-indigo-950">
+                <div className="mt-3 text-center font-mono text-gray-800 w-full">
+                  <p className="font-bold text-xs sm:text-sm text-indigo-950">
                     Dag {entry.daysWorn}
                   </p>
                   {entry.caption && (
-                    <p className="text-xs text-gray-500 italic mt-1 truncate">
+                    <p className="text-[10px] sm:text-xs text-gray-500 italic mt-0.5 px-1 truncate w-full">
                       "{entry.caption}"
                     </p>
                   )}
