@@ -18,7 +18,6 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  // Formulär-states
   const [file, setFile] = useState<File | null>(null);
   const [daysWorn, setDaysWorn] = useState('');
   const [caption, setCaption] = useState('');
@@ -74,8 +73,9 @@ export default function Home() {
 
       const imageUrl = urlData.publicUrl;
 
-      const randomX = Math.floor(Math.random() * 60) + 20;
-      const randomY = Math.floor(Math.random() * 60) + 20;
+      // Sprid ut bilderna i utkanterna så de inte krockar med den centrerade titeln
+      const randomX = Math.random() > 0.5 ? Math.floor(Math.random() * 25) + 10 : Math.floor(Math.random() * 25) + 65;
+      const randomY = Math.random() > 0.5 ? Math.floor(Math.random() * 25) + 10 : Math.floor(Math.random() * 25) + 65;
 
       const { error: insertError } = await supabase
         .from('jeans_entries')
@@ -106,35 +106,39 @@ export default function Home() {
   };
 
   return (
-    <main className="relative min-h-screen w-full bg-slate-950">
+    <main className="relative min-h-screen w-full overflow-x-hidden">
       
-      {/* NY STILREN HEADER: Helt utan mörk bakgrundsbox, ren vit text direkt på denim */}
-      <div className="absolute top-8 left-8 z-30 select-none pointer-events-auto">
-        <h1 className="text-2xl font-black tracking-widest text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-          DENIM JOURNAL
-        </h1>
-        <p className="text-xs text-white/70 font-mono mt-1 tracking-wide drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
-          » Trådar som berättar en historia
-        </p>
-        
-        {/* Minimalistisk vit knapp */}
-        <button 
-          onClick={() => setIsModalOpen(true)}
-          className="mt-4 bg-transparent hover:bg-white text-white hover:text-slate-950 font-bold font-mono text-[11px] tracking-wider py-2 px-4 border border-white rounded-none transition-all duration-300 uppercase shadow-lg"
-        >
-          + Lägg till bild
-        </button>
+      {/* Kollaget (Ligger som ett skikt bakom/runt om titeln) */}
+      <DenimCollage entries={entries} />
+
+      {/* CENTRERAD PANEL: Låst mitt på skärmen, ren vit text */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center z-30 pointer-events-none select-none text-center px-4">
+        <div className="pointer-events-auto bg-slate-950/40 p-8 rounded-xl backdrop-blur-sm border border-white/5 max-w-sm w-full">
+          <h1 className="text-3xl font-black tracking-[0.2em] text-white drop-shadow-[0_4px_6px_rgba(0,0,0,0.9)]">
+            DENIM JOURNAL
+          </h1>
+          <p className="text-xs text-white/80 font-mono mt-2 tracking-widest uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+            » Trådar som berättar en historia
+          </p>
+          
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="mt-6 bg-white hover:bg-transparent text-slate-950 hover:text-white font-bold font-mono text-xs tracking-wider py-3 px-6 border border-white rounded-none transition-all duration-300 uppercase shadow-2xl"
+          >
+            + Lägg till bild
+          </button>
+        </div>
       </div>
 
-      {/* Uppladdnings-Modal (Behålls mörk för läsbarhet mot formulärfält) */}
+      {/* Uppladdnings-Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
           <div className="bg-slate-900 border border-slate-800 text-white rounded-none p-6 w-full max-w-md shadow-2xl">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-sm font-bold font-mono tracking-wider uppercase text-white">Ny tidslinjebild</h2>
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="text-slate-400 hover:text-white font-mono text-xs uppercase tracking-wider"
+                className="text-slate-400 hover:text-white font-mono text-xs uppercase"
               >
                 [ Stäng ]
               </button>
@@ -147,7 +151,7 @@ export default function Home() {
                   type="file" 
                   accept="image/*"
                   onChange={(e) => setFile(e.target.files?.[0] || null)}
-                  className="w-full text-xs text-slate-400 file:mr-4 file:py-1.5 file:px-3 file:border file:border-slate-700 file:text-xs file:font-mono file:bg-slate-950 file:text-white hover:file:bg-slate-800 file:transition-colors"
+                  className="w-full text-xs text-slate-400 file:mr-4 file:py-1.5 file:px-3 file:border file:border-slate-700 file:text-xs file:font-mono file:bg-slate-950 file:text-white hover:file:bg-slate-800"
                 />
               </div>
 
@@ -183,15 +187,6 @@ export default function Home() {
             </form>
           </div>
         </div>
-      )}
-
-      {/* Kollaget */}
-      {entries.length === 0 && !loading ? (
-        <div className="absolute inset-0 flex items-center justify-center text-white/40 font-mono text-xs uppercase tracking-widest z-10 select-none pointer-events-none">
-          Kollaget är tomt
-        </div>
-      ) : (
-        <DenimCollage entries={entries} />
       )}
       
     </main>
