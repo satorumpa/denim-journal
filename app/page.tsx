@@ -24,7 +24,6 @@ export default function Home() {
   const [caption, setCaption] = useState('');
   const [uploading, setUploading] = useState(false);
 
-  // 1. Hämta bilder från Supabase live!
   const fetchEntries = async () => {
     setLoading(true);
     const { data, error } = await supabase
@@ -52,7 +51,6 @@ export default function Home() {
     fetchEntries();
   }, []);
 
-  // 2. Hantera uppladdning av bild och data
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file || !daysWorn) return alert("Välj en bild och fyll i antal dagar!");
@@ -60,30 +58,25 @@ export default function Home() {
     setUploading(true);
 
     try {
-      // A. Skapa ett unikt filnamn för Supabase Storage
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${fileName}`;
 
-      // B. Ladda upp filen till 'jeans-images' hinken
       const { error: uploadError } = await supabase.storage
         .from('jeans-images')
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
-      // C. Hämta den publika URL:en för bilden vi nyss laddade upp
       const { data: urlData } = supabase.storage
         .from('jeans-images')
         .getPublicUrl(filePath);
 
       const imageUrl = urlData.publicUrl;
 
-      // D. Slumpa koordinater för kollaget så de sprids ut (0-100%)
-      const randomX = Math.floor(Math.random() * 60) + 20; // Mellan 20% och 80%
+      const randomX = Math.floor(Math.random() * 60) + 20;
       const randomY = Math.floor(Math.random() * 60) + 20;
 
-      // E. Spara posten i databasen
       const { error: insertError } = await supabase
         .from('jeans_entries')
         .insert([
@@ -98,13 +91,11 @@ export default function Home() {
 
       if (insertError) throw insertError;
 
-      // Återställ formuläret och stäng rutan
       setFile(null);
       setDaysWorn('');
       setCaption('');
       setIsModalOpen(false);
       
-      // Hämta om listan så nya bilden dyker upp direkt
       fetchEntries();
 
     } catch (error: any) {
@@ -115,78 +106,79 @@ export default function Home() {
   };
 
   return (
-    <main className="relative min-h-screen w-full bg-slate-900">
+    <main className="relative min-h-screen w-full bg-slate-950">
       
-      {/* Header med kontrollpanel */}
-      <div className="absolute top-6 left-6 z-30 bg-slate-950/80 text-white px-6 py-3 rounded-xl backdrop-blur-md shadow-2xl border border-slate-800">
-        <h1 className="text-xl font-black tracking-widest text-indigo-100">DENIM JOURNAL</h1>
-        <p className="text-xs text-amber-400 font-mono mt-0.5">» Dokumentera dina fades</p>
+      {/* NY STILREN HEADER: Helt utan mörk bakgrundsbox, ren vit text direkt på denim */}
+      <div className="absolute top-8 left-8 z-30 select-none pointer-events-auto">
+        <h1 className="text-2xl font-black tracking-widest text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+          DENIM JOURNAL
+        </h1>
+        <p className="text-xs text-white/70 font-mono mt-1 tracking-wide drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+          » Trådar som berättar en historia
+        </p>
         
+        {/* Minimalistisk vit knapp */}
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="mt-3 w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs py-2 px-4 rounded-md transition-colors shadow-md border border-indigo-400/20"
+          className="mt-4 bg-transparent hover:bg-white text-white hover:text-slate-950 font-bold font-mono text-[11px] tracking-wider py-2 px-4 border border-white rounded-none transition-all duration-300 uppercase shadow-lg"
         >
-          + Ladda upp bild på dina jeans
+          + Lägg till bild
         </button>
       </div>
 
-      {/* Uppladdnings-Modal (Popup-fönster) */}
+      {/* Uppladdnings-Modal (Behålls mörk för läsbarhet mot formulärfält) */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-900 border border-slate-800 text-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold text-indigo-200">Ny tidslinjebild</h2>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-900 border border-slate-800 text-white rounded-none p-6 w-full max-w-md shadow-2xl">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-sm font-bold font-mono tracking-wider uppercase text-white">Ny tidslinjebild</h2>
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="text-slate-400 hover:text-white font-bold text-sm"
+                className="text-slate-400 hover:text-white font-mono text-xs uppercase tracking-wider"
               >
-                Stäng
+                [ Stäng ]
               </button>
             </div>
 
-            <form onSubmit={handleUpload} className="space-y-4">
-              {/* Filväljare */}
+            <form onSubmit={handleUpload} className="space-y-5">
               <div>
-                <label className="block text-xs font-mono text-slate-400 mb-1">VÄLJ BILD</label>
+                <label className="block text-[10px] font-mono tracking-wider text-slate-400 mb-1">VÄLJ BILD</label>
                 <input 
                   type="file" 
                   accept="image/*"
                   onChange={(e) => setFile(e.target.files?.[0] || null)}
-                  className="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-950 file:text-indigo-300 hover:file:bg-indigo-900"
+                  className="w-full text-xs text-slate-400 file:mr-4 file:py-1.5 file:px-3 file:border file:border-slate-700 file:text-xs file:font-mono file:bg-slate-950 file:text-white hover:file:bg-slate-800 file:transition-colors"
                 />
               </div>
 
-              {/* Antal dagar */}
               <div>
-                <label className="block text-xs font-mono text-slate-400 mb-1">ANTAL DAGAR ANVÄNDA (WEAR DAYS)</label>
+                <label className="block text-[10px] font-mono tracking-wider text-slate-400 mb-1">ANTAL DAGAR ANVÄNDA</label>
                 <input 
                   type="number" 
                   placeholder="Ex: 120"
                   value={daysWorn}
                   onChange={(e) => setDaysWorn(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-md p-2 text-sm focus:outline-none focus:border-indigo-500 text-white"
+                  className="w-full bg-slate-950 border border-slate-800 p-2 text-xs font-mono focus:outline-none focus:border-white text-white"
                 />
               </div>
 
-              {/* Bildtext */}
               <div>
-                <label className="block text-xs font-mono text-slate-400 mb-1">BILDTEXT / NOTERING (VALFRI)</label>
+                <label className="block text-[10px] font-mono tracking-wider text-slate-400 mb-1">BILDTEXT (VALFRI)</label>
                 <input 
                   type="text" 
-                  placeholder="Ex: Första tvätten gjord!"
+                  placeholder="Ex: Tredje tvätten"
                   value={caption}
                   onChange={(e) => setCaption(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-md p-2 text-sm focus:outline-none focus:border-indigo-500 text-white"
+                  className="w-full bg-slate-950 border border-slate-800 p-2 text-xs font-mono focus:outline-none focus:border-white text-white"
                 />
               </div>
 
-              {/* Skicka-knapp */}
               <button
                 type="submit"
                 disabled={uploading}
-                className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-slate-700 text-slate-950 font-bold py-2.5 rounded-md transition-colors text-sm shadow-lg mt-2"
+                className="w-full bg-white hover:bg-slate-200 disabled:bg-slate-800 disabled:text-slate-600 text-slate-950 font-bold font-mono py-2.5 transition-colors text-xs tracking-wider uppercase"
               >
-                {uploading ? "Laddar upp till molnet..." : "Publicera till kollaget"}
+                {uploading ? "Laddar upp..." : "Publicera"}
               </button>
             </form>
           </div>
@@ -195,8 +187,8 @@ export default function Home() {
 
       {/* Kollaget */}
       {entries.length === 0 && !loading ? (
-        <div className="absolute inset-0 flex items-center justify-center text-slate-400 font-mono text-sm z-10">
-          Kollaget är tomt. Tryck på knappen för att starta din denim-resa!
+        <div className="absolute inset-0 flex items-center justify-center text-white/40 font-mono text-xs uppercase tracking-widest z-10 select-none pointer-events-none">
+          Kollaget är tomt
         </div>
       ) : (
         <DenimCollage entries={entries} />
