@@ -34,7 +34,10 @@ export default function DenimCollage({ entries }: DenimCollageProps) {
   };
 
   return (
-    <div className="relative w-full min-h-screen bg-[url('/denim-bg.jpg')] bg-repeat p-8 overflow-hidden select-none">
+    <div 
+      className="relative w-full min-h-screen bg-repeat p-8 overflow-hidden select-none"
+      style={{ backgroundImage: "url('/denim-bg.jpg')", backgroundAttachment: "fixed" }}
+    >
       
       {/* Skikt 1: De orangea jeans-stygnen */}
       {sortedEntries.length > 1 && (
