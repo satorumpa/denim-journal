@@ -7,8 +7,6 @@ interface JournalEntry {
   imageUrl: string;
   daysWorn: number;
   caption: string;
-  x: number; 
-  y: number;
 }
 
 interface DenimCollageProps {
@@ -18,148 +16,82 @@ interface DenimCollageProps {
 export default function DenimCollage({ entries }: DenimCollageProps) {
   const [selectedEntry, setSelectedEntry] = useState<JournalEntry | null>(null);
 
+  // Sortera kronologiskt
   const sortedEntries = [...entries].sort((a, b) => a.daysWorn - b.daysWorn);
 
-  const generateStitchPath = () => {
-    if (sortedEntries.length < 2) return "";
-    return sortedEntries
-      .map((entry, index) => {
-        const prefix = index === 0 ? "M" : "L";
-        return `${prefix} ${entry.x}% ${entry.y}%`;
-      })
-      .join(" ");
-  };
-
   return (
-    <div className="relative w-full min-h-screen overflow-hidden bg-slate-950">
+    <div className="w-full max-w-7xl mx-auto px-6">
       
-      {/* Det faktiska jeans-lagret */}
-      <div 
-        className="absolute inset-0 bg-repeat z-0"
-        style={{ 
-          backgroundImage: "url('https://images.unsplash.com/photo-1541099649105-f69ad21f3246?q=80&w=2000&auto=format&fit=crop')", 
-          backgroundAttachment: "fixed",
-          backgroundSize: "500px"
-        }}
-      />
-
-      <div className="absolute inset-0 bg-slate-950/40 z-0 pointer-events-none" />
-      
-      {/* Skikt 1: De orangea jeans-stygnen */}
-      {sortedEntries.length > 1 && (
-        <svg className="absolute inset-0 w-full h-full pointer-events-none z-10">
-          <path
-            d={generateStitchPath()}
-            fill="none"
-            stroke="#f59e0b" 
-            strokeWidth="3" 
-            strokeDasharray="10, 7" 
-            strokeLinecap="round"
-            className="drop-shadow-[0_1.5px_3px_rgba(0,0,0,0.8)]"
-          />
-        </svg>
-      )}
-
-      {/* Skikt 2: Polaroid-bilderna i litet format */}
-      <div className="relative w-full h-full z-20 min-h-screen">
-        {sortedEntries.map((entry, index) => {
-          const rotations = ['-rotate-2', 'rotate-3', '-rotate-1', 'rotate-2', '-rotate-3'];
-          const rotation = rotations[index % rotations.length];
-
-          return (
-            <div
-              key={entry.id}
-              onClick={() => setSelectedEntry(entry)}
-              className={`absolute transform ${rotation} transition-transform hover:scale-110 hover:z-40 duration-300 cursor-pointer`}
-              style={{
-                left: `${entry.x}%`,
-                top: `${entry.y}%`,
-                transform: `translate(-50%, -50%)`,
-              }}
-            >
-              {/* TVINGAD BREDD MED INLINE STYLE */}
-              <div 
-                className="bg-white p-2 pb-3 shadow-2xl border border-gray-200/50 rounded-sm flex flex-col items-center"
-                style={{ width: '110px' }} // <- Här låser vi storleken totalt!
-              >
-                <div className="relative w-full aspect-square bg-gray-100 overflow-hidden border border-gray-200">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={entry.imageUrl}
-                    alt={`Fade efter ${entry.daysWorn} dagar`}
-                    className="block object-cover"
-                    style={{ width: '100%', height: '100%' }} // <- Tvingar bilden att fylla den lilla rutan
-                  />
-                </div>
-                
-                <div className="mt-1.5 text-center font-mono text-gray-800 w-full">
-                  <p className="font-bold text-[10px] text-indigo-950">
-                    Dag {entry.daysWorn}
-                  </p>
-                  {entry.caption && (
-                    <p className="text-[9px] text-gray-500 italic mt-0.5 px-1 truncate w-full">
-                      "{entry.caption}"
-                    </p>
-                  )}
-                </div>
-              </div>
+      {/* App-rutnätet (Grid) */}
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4 sm:gap-6 lg:gap-8">
+        {sortedEntries.map((entry) => (
+          <div
+            key={entry.id}
+            onClick={() => setSelectedEntry(entry)}
+            // App-ikon-styling: Kvadratisk, stark rundning (squircle), shadow och hover-effekt
+            className="group relative aspect-square w-full rounded-[22%] bg-slate-900 shadow-xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.05] hover:shadow-[0_10px_30px_rgba(0,0,0,0.6)] border border-white/5 hover:border-white/20"
+          >
+            <img
+              src={entry.imageUrl}
+              alt={`Dag ${entry.daysWorn}`}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            />
+            
+            {/* Mörk toning i botten för att texten alltid ska synas */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
+            
+            <div className="absolute bottom-3 sm:bottom-4 left-0 w-full text-center px-2">
+              <p className="text-[10px] sm:text-xs font-mono font-bold text-white tracking-widest drop-shadow-md">
+                DAG {entry.daysWorn}
+              </p>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
 
-      {/* Skikt 3: Lighbox / Större visningsläge (SKOTTSÄKER POSITIONERING) */}
+      {/* Resan (Fullskärms-overlay när man klickar) */}
       {selectedEntry && (
         <div 
-          className="flex items-center justify-center bg-black/95 backdrop-blur-md cursor-zoom-out"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/95 backdrop-blur-2xl cursor-zoom-out p-4"
           onClick={() => setSelectedEntry(null)}
-          style={{
-            position: 'fixed', // Låser fast den
-            top: 0,            // Högst upp
-            left: 0,           // Längst till vänster
-            width: '100vw',    // Fyller hela bredden
-            height: '100vh',   // Fyller hela skärmhöjden oavsett scroll!
-            zIndex: 99999,     // Garanterat överst
-          }}
         >
           <div 
-            className="relative bg-white p-4 rounded-sm shadow-2xl flex flex-col items-center cursor-default"
+            className="relative w-full max-w-4xl flex flex-col md:flex-row items-center md:items-start gap-8 cursor-default"
             onClick={(e) => e.stopPropagation()} 
-            style={{
-              width: '90%',
-              maxWidth: '600px',
-              maxHeight: '90vh',
-            }}
           >
+            {/* Stängknapp */}
             <button 
               onClick={() => setSelectedEntry(null)}
-              className="absolute top-3 right-3 text-slate-400 hover:text-slate-900 font-mono text-xs uppercase tracking-widest transition-colors z-10"
+              className="absolute -top-12 right-0 md:-top-8 md:-right-8 text-white/50 hover:text-white font-mono text-sm tracking-widest transition-colors flex items-center gap-2"
             >
-              [ x ]
+              STÄNG <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
             
-            <div 
-              className="w-full mt-4 bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden"
-              style={{ maxHeight: '60vh' }}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
+            {/* Bilden */}
+            <div className="w-full md:w-3/5 relative rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10">
               <img
                 src={selectedEntry.imageUrl}
-                alt={`Större bild efter ${selectedEntry.daysWorn} dagar`}
-                style={{ width: '100%', maxHeight: '60vh', objectFit: 'contain' }}
+                alt={`Dag ${selectedEntry.daysWorn}`}
+                className="w-full max-h-[65vh] md:max-h-[80vh] object-contain bg-black/50"
               />
             </div>
             
-            <div className="mt-4 text-center font-mono text-slate-800 w-full pb-2">
-              <p className="font-bold text-lg text-indigo-950">
+            {/* Resans Data (Texten vid sidan av eller under bilden) */}
+            <div className="w-full md:w-2/5 flex flex-col pt-4 md:pt-12 text-center md:text-left px-4 md:px-0">
+              <p className="text-amber-500 font-mono text-xs tracking-widest uppercase mb-2">Tidslinje</p>
+              <h3 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-6">
                 Dag {selectedEntry.daysWorn}
-              </p>
+              </h3>
+              
               {selectedEntry.caption && (
-                <p className="text-sm text-gray-600 italic mt-1.5 px-2">
-                  "{selectedEntry.caption}"
-                </p>
+                <div className="bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-sm">
+                  <p className="text-sm md:text-base text-white/80 font-mono italic leading-relaxed">
+                    "{selectedEntry.caption}"
+                  </p>
+                </div>
               )}
             </div>
+
           </div>
         </div>
       )}
