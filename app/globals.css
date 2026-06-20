@@ -2,8 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
+html, body {
   margin: 0;
   padding: 0;
-  background-color: #0f172a; /* En mörk reservfärg */
+  background-color: #090d16 !important; /* Tvingar en mycket mörk basfärg */
+  color: #ffffff !important;             /* Tvingar all text i grunden att bli vit */
 }
